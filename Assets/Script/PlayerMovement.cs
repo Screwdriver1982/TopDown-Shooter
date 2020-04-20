@@ -5,13 +5,15 @@ using UnityEngine;
 public class PlayerMovement : MonoBehaviour
 {
     public float speed;
-    
+
+    bool alive;
     Rigidbody2D rb;
     Animator anim;
 
     // Start is called before the first frame update
     void Start()
     {
+        alive = GetComponent<AliveOrDeath>().alive;
         rb = GetComponent<Rigidbody2D>();
         anim = GetComponentInChildren<Animator>();
     }
@@ -19,12 +21,12 @@ public class PlayerMovement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        //Debug.Log(transform.up);
-        //Debug.Log(transform.right);
-        //Debug.Log(transform.forward);
-
-        Move();
-        Rotate();
+        alive = GetComponent<AliveOrDeath>().alive;
+        if (alive)
+        { 
+            Move();
+            Rotate();
+        }
 
     }
 
@@ -37,12 +39,6 @@ public class PlayerMovement : MonoBehaviour
         anim.SetFloat("Speed",rb.velocity.magnitude);
 
 
-        //Vector3 newPosition = transform.position;
-        //newPosition.x += speed * Time.deltaTime * inputX;
-        //newPosition.y += speed * Time.deltaTime * inputY;
-        //transform.position = newPosition;
-        //или можно по-другому
-        // transform.position = new Vector3 (speed, 0 ,0);
 
     }
 

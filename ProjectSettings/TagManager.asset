@@ -16,8 +16,8 @@ TagManager:
   - Player
   - Bullet
   - Enemy
-  - 
-  - 
+  - EnemyBullet
+  - Loot
   - 
   - 
   - 
@@ -38,9 +38,18 @@ TagManager:
   - 
   - 
   m_SortingLayers:
-  - name: Bullet
-    uniqueID: 1622123803
+  - name: Loot
+    uniqueID: 3714369393
+    locked: 0
+  - name: Enemy
+    uniqueID: 2122647251
     locked: 0
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: EnemyBullet
+    uniqueID: 3355680729
+    locked: 0
+  - name: Bullet
+    uniqueID: 1622123803
     locked: 0

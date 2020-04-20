@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 5979520839360181627}
   - component: {fileID: 5979520839360181626}
   - component: {fileID: 5979520839360181620}
+  - component: {fileID: 7377507252126381447}
   - component: {fileID: 5979520839360181622}
   - component: {fileID: 5979520839360181621}
   m_Layer: 8
@@ -52,6 +53,8 @@ MonoBehaviour:
     type: 3}
   shootPosition: {fileID: 5979520840121286691}
   fireRate: 0.5
+  maxHealth: 100
+  health: 100
 --- !u!114 &5979520839360181620
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -65,6 +68,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 4
+--- !u!114 &7377507252126381447
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5979520839360181625}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 17274e85f19aea848a4eb09b171ad6b9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  alive: 1
 --- !u!58 &5979520839360181622
 CircleCollider2D:
   m_ObjectHideFlags: 0
