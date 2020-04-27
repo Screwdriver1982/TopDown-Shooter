@@ -59,7 +59,7 @@ public class Player : MonoBehaviour
         }
     }
 
-    void DoDamage(float damage)
+    public void DoDamage(float damage)
     {
         health -= damage;
         if (health <= 0 && alive)

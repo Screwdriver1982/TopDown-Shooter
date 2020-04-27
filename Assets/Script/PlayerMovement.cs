@@ -6,32 +6,37 @@ public class PlayerMovement : MonoBehaviour
 {
     public float speed;
 
-    bool alive;
+    AliveOrDeath aliveOrDeath;
     Rigidbody2D rb;
     Animator anim;
 
     // Start is called before the first frame update
     void Start()
     {
-        alive = GetComponent<AliveOrDeath>().alive;
+        aliveOrDeath = GetComponent<AliveOrDeath>();
         rb = GetComponent<Rigidbody2D>();
         anim = GetComponentInChildren<Animator>();
     }
 
     // Update is called once per frame
-    void Update()
-    {
-        alive = GetComponent<AliveOrDeath>().alive;
-        if (alive)
-        { 
-            Move();
-            Rotate();
-        }
 
+
+    private void FixedUpdate()
+    {
+        
+        
+        Move();
+        Rotate();
+        
     }
 
     void Move()
     {
+        if (!aliveOrDeath.alive)
+        {
+            return;
+        }
+
         float inputX = Input.GetAxis("Horizontal");
         float inputY = Input.GetAxis("Vertical");
         rb.velocity = new Vector2(inputX, inputY) * speed;
@@ -44,6 +49,10 @@ public class PlayerMovement : MonoBehaviour
 
     void Rotate()
     {
+        if (!aliveOrDeath.alive)
+        {
+            return;
+        }
         Vector2 mouseWorldPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 
 
