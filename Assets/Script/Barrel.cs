@@ -53,7 +53,7 @@ public class Barrel : MonoBehaviour
             {
                 Blast();
             }
-            StartCoroutine(DestroyBarrel(destroyTime));
+            Destroy(gameObject, destroyTime);
         }
     }
 
@@ -72,42 +72,44 @@ public class Barrel : MonoBehaviour
             }
 
             Zombie zombie = objectI.GetComponent<Zombie>();
-            Player player = objectI.GetComponent<Player>();
-            Enemy enemy = objectI.GetComponent<Enemy>();
-            Barrel barrel = objectI.GetComponent<Barrel>();
-
             if (zombie != null)
             {
                 zombie.DoDamage(blastDamage);
+                continue;
             }
-            else if (player != null)
-            {
-                player.DoDamage(blastDamage);
-            }
-            else if (enemy != null)
+            
+            Enemy enemy = objectI.GetComponent<Enemy>();
+             if (enemy != null)
             {
                 enemy.DoDamage(blastDamage);
+                continue;
             }
-            else if (barrel != null)
+            
+            Barrel barrel = objectI.GetComponent<Barrel>();
+             if (barrel != null)
             {
                 barrel.DoDamage(blastDamage);
+                continue;
             }
+
+            Player player = objectI.GetComponent<Player>();
+                  
+            if (player != null)
+            {
+                player.DoDamage(blastDamage);
+
+            }
+           
+           
         }
 
 
 
     }
 
-    private void OnDrawGizmos()
+    private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, blastRadius);
-    }
-
-    IEnumerator DestroyBarrel(float destroyTime)
-    {
-        yield return new WaitForSeconds(destroyTime);
-        Destroy(gameObject);
-
     }
 }

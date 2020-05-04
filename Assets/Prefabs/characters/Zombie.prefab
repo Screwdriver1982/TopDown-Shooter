@@ -54,7 +54,7 @@ MonoBehaviour:
   returnDeltaDistance: 2
   stopRange: 0.1
   corpsTime: 1
-  health: 10
+  health: 30
   attackRate: 2
   damage: 10
   pointPrefab: {fileID: 1466603086557330349, guid: 227ac02a24c850f4487609cbf47c4063,
@@ -148,6 +148,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7628377277711089059}
+  - component: {fileID: 1632518100851256876}
   - component: {fileID: 7628377277711089060}
   - component: {fileID: 4354897916375190927}
   m_Layer: 0
@@ -171,6 +172,18 @@ Transform:
   m_Father: {fileID: 7628377277527264359}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1632518100851256876
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7628377277711089058}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e118aa405ba422841b8b8b33c56b4552, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!212 &7628377277711089060
 SpriteRenderer:
   m_ObjectHideFlags: 0

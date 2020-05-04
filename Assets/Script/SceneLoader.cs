@@ -5,9 +5,21 @@ using UnityEngine.SceneManagement;
 
 public class SceneLoader : MonoBehaviour
 {
-    public void LoadScene(int sceneNumber, float reloadTime)
+    public void Start()
     {
-        Coroutine SceneReload = StartCoroutine(SceneLoadCoroutine(sceneNumber, reloadTime));
+        DontDestroyOnLoad(gameObject);
+        LoadNextLevel(0);
+    }
+    public void ReloadScene(float reloadTime)
+    {
+        int activeSceneIndex = SceneManager.GetActiveScene().buildIndex;
+        Coroutine SceneReload = StartCoroutine(SceneLoadCoroutine(activeSceneIndex, reloadTime));
+    }
+
+    public void LoadNextLevel(float reloadTime)
+    {
+        int activeSceneIndex = SceneManager.GetActiveScene().buildIndex;
+        Coroutine NextLevel = StartCoroutine(SceneLoadCoroutine(activeSceneIndex+1, reloadTime));
     }
 
 

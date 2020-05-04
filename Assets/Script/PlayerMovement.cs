@@ -5,6 +5,7 @@ using UnityEngine;
 public class PlayerMovement : MonoBehaviour
 {
     public float speed;
+    public float velocityCheck;
 
     AliveOrDeath aliveOrDeath;
     Rigidbody2D rb;
@@ -40,7 +41,7 @@ public class PlayerMovement : MonoBehaviour
         float inputX = Input.GetAxis("Horizontal");
         float inputY = Input.GetAxis("Vertical");
         rb.velocity = new Vector2(inputX, inputY) * speed;
-        
+        velocityCheck = rb.velocity.magnitude;
         anim.SetFloat("Speed",rb.velocity.magnitude);
 
 

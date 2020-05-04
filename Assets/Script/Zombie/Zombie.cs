@@ -11,6 +11,7 @@ public class Zombie : MonoBehaviour
     public float stopRange;
     public float corpsTime;
     public float health;
+    public bool finalBoss;
 
     [Header("Attack Config")]
     public float attackRate;
@@ -31,11 +32,13 @@ public class Zombie : MonoBehaviour
     AliveOrDeath aliveVar;
     bool alive;
 
+
     GameObject nextPoint;
     GameObject previousPoint;
     bool directPatroling;
     int currentPatrolPoint;
     bool canAttack;
+    public RescueZone[] rZone;
 
 
     enum ZombieStates
@@ -69,6 +72,16 @@ public class Zombie : MonoBehaviour
         
         aliveVar = GetComponent<AliveOrDeath>();
         AliveOrNot(true);
+        
+        rZone = FindObjectsOfType<RescueZone>();
+        
+        if (finalBoss)
+        {
+            ActivateRescueZone(false);
+        }
+        
+        
+
 
         previousPoint = Instantiate(pointPrefab, transform.position, Quaternion.identity);
         currentPatrolPoint = 0;
@@ -133,14 +146,12 @@ public class Zombie : MonoBehaviour
                 }
 
                 if (canAttack)
-                { 
+                {
                     Rotate(player.gameObject);
                     anim.SetTrigger("Shoot");
-                    player.DoDamage(damage);
-                    
                     canAttack = false;
                     StartCoroutine(ZombieAttack(attackRate));
-                
+
                 }
                 break;
 
@@ -192,6 +203,11 @@ public class Zombie : MonoBehaviour
         }
     }
 
+    public void DoDamageToPlayer()
+    {
+        player.DoDamage(damage);
+    }
+
     void ChangeState(ZombieStates newState)
     {
         activeState = newState;
@@ -209,7 +225,6 @@ public class Zombie : MonoBehaviour
                 movement.enabled = true;
                 movement.StartFollow();
                 movement.FollowSpeed();
-                anim.SetTrigger("Move");
 
                 break;
             case ZombieStates.ATTACK:
@@ -224,7 +239,7 @@ public class Zombie : MonoBehaviour
                 movement.SetTarget(previousPoint);
                 movement.RuturnSpeed();
                 Rotate(previousPoint);
-                anim.SetTrigger("Move");
+
 
 
                 break;
@@ -235,7 +250,6 @@ public class Zombie : MonoBehaviour
                 movement.SetTarget(nextPoint);
                 movement.PatrolSpeed();
                 Rotate(nextPoint);
-                anim.SetTrigger("Move");
 
                 break;
             case ZombieStates.DEATH:
@@ -243,7 +257,11 @@ public class Zombie : MonoBehaviour
                 movement.enabled = false;
                 movement.StopMovement();
                 anim.SetTrigger("Death");
-                StartCoroutine(ZombieDeath(corpsTime));
+                if (finalBoss)
+                {
+                    ActivateRescueZone(true);
+                } 
+                Destroy(gameObject, corpsTime);
                 break;
 
             default:
@@ -256,8 +274,8 @@ public class Zombie : MonoBehaviour
         Vector2 direction = target.transform.position - transform.position;
         transform.up = -direction;
     }
-
-    private void OnDrawGizmos()
+    
+    private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.blue;
         Gizmos.DrawWireSphere(transform.position, followDistance);
@@ -336,10 +354,12 @@ public class Zombie : MonoBehaviour
         aliveVar.SetAlive(aliveSet);
     }
 
-    IEnumerator ZombieDeath(float corpsTime)
+    void ActivateRescueZone(bool onOff)
     {
-        yield return new WaitForSeconds(corpsTime);
-        Destroy(gameObject);
-
+        for (int i = 0; i < rZone.Length; i++)
+        {
+            rZone[i].Activate(onOff);
+        }
     }
+
 }

@@ -67,7 +67,7 @@ public class Player : MonoBehaviour
             anim.SetTrigger("Death");
             AliveOrNot(false);
 
-            sceneLoaderVar.LoadScene(0, 3f);
+            sceneLoaderVar.ReloadScene(3f);
             
 
         }
