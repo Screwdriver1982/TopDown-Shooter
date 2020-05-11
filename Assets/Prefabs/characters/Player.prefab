@@ -68,6 +68,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 5
+  velocityCheck: 0
 --- !u!114 &7377507252126381447
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -117,7 +118,7 @@ Rigidbody2D:
   m_Interpolate: 0
   m_SleepingMode: 1
   m_CollisionDetection: 0
-  m_Constraints: 0
+  m_Constraints: 4
 --- !u!1 &5979520839524572762
 GameObject:
   m_ObjectHideFlags: 0

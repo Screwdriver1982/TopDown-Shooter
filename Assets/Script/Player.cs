@@ -1,10 +1,14 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 
 public class Player : MonoBehaviour
 {
+    public Action onHealthChanged = delegate { };
+    public Action onDeath = delegate { };
+
     public GameObject bulletPrefab;
     public Transform shootPosition;
     public float fireRate;
@@ -62,12 +66,12 @@ public class Player : MonoBehaviour
     public void DoDamage(float damage)
     {
         health -= damage;
+        onHealthChanged();
         if (health <= 0 && alive)
         {
             anim.SetTrigger("Death");
             AliveOrNot(false);
-
-            sceneLoaderVar.ReloadScene(3f);
+            onDeath();
             
 
         }
@@ -82,6 +86,7 @@ public class Player : MonoBehaviour
     public void ChangeHP(float hpBonus)
     {
         health = Mathf.Clamp(health + hpBonus, 0, maxHealth);
+        onHealthChanged();
     }
 
 }

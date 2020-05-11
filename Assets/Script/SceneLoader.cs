@@ -7,8 +7,11 @@ public class SceneLoader : MonoBehaviour
 {
     public void Start()
     {
-        DontDestroyOnLoad(gameObject);
-        LoadNextLevel(0);
+        int activeSceneI = SceneManager.GetActiveScene().buildIndex;
+        if (activeSceneI == 0)
+        { 
+            LoadNextLevel(0);
+        }
     }
     public void ReloadScene(float reloadTime)
     {

@@ -4,15 +4,15 @@ using UnityEngine;
 
 public class ZombieAnimationHelper : MonoBehaviour
 {
-    Player player;
+    Zombie zombie;
     // Start is called before the first frame update
     void Start()
     {
-        player = GetComponentInParent<Player>();
+        zombie = GetComponentInParent<Zombie>();
     }
 
     void Attack()
-    { 
-        
+    {
+        zombie.DoDamageToPlayer();
     }
 }

@@ -1,15 +1,23 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
+using UnityEditorInternal;
 
 public class Zombie : MonoBehaviour
 {
+    public Action onHealthChanged = delegate { };
+
+
     [Header("AI Config")]
     public float followDistance;
+    public float absoluteFollowDistance;
+    public float spotAreaAngle;
     public float attackDistance;
     public float returnDeltaDistance;
     public float stopRange;
     public float corpsTime;
+    public float maxHealth;
     public float health;
     public bool finalBoss;
 
@@ -21,10 +29,11 @@ public class Zombie : MonoBehaviour
     public GameObject pointPrefab;
     public GameObject[] patrolPoints;
 
+    public RescueZone[] rZone;
 
 
     Player player;
-
+    bool playerAlive = true;
     
     ZombieMovement movement;
     Animator anim;
@@ -38,7 +47,7 @@ public class Zombie : MonoBehaviour
     bool directPatroling;
     int currentPatrolPoint;
     bool canAttack;
-    public RescueZone[] rZone;
+    Vector3 startGuardRotation;
 
 
     enum ZombieStates
@@ -65,11 +74,20 @@ public class Zombie : MonoBehaviour
     void Start()
     {
         player = FindObjectOfType<Player>();
+        player.onDeath += onPlayerDeath;
 
         movement = GetComponent<ZombieMovement>();
         anim = GetComponentInChildren<Animator>();
         rb = GetComponent<Rigidbody2D>();
         
+        //Debug.Log(Mathf.Cos(Mathf.PI));
+        //Debug.Log(gameObject.name + " : " + transform.up);
+        //Vector3 newUP  = new Vector3 ;
+        //Debug.Log(gameObject.name + " : " + RotateVector(transform.up, 360f));
+
+
+        health = maxHealth;
+        onHealthChanged();
         aliveVar = GetComponent<AliveOrDeath>();
         AliveOrNot(true);
         
@@ -88,7 +106,8 @@ public class Zombie : MonoBehaviour
 
         if (patrolPoints.Length <= 1)
         {
-            activeBehavior = BaseBehavior.GUARD;        
+            activeBehavior = BaseBehavior.GUARD;
+            startGuardRotation = new Vector3 (transform.up.x, transform.up.y, 0);
         }
         else if ( patrolPoints.Length >1)
         {
@@ -98,6 +117,8 @@ public class Zombie : MonoBehaviour
         ChangeState(ZombieStates.RETURN);
 
     }
+
+
 
     // Update is called once per frame
     void FixedUpdate()
@@ -113,11 +134,10 @@ public class Zombie : MonoBehaviour
         {
             case ZombieStates.STAND:
                 
-                if (distancePlayer <= followDistance)
+                if (distancePlayer <= followDistance && playerAlive)
                 {
-                    previousPoint = Instantiate(pointPrefab, transform.position, Quaternion.identity);
-                    ChangeState(ZombieStates.MOVE);
-                } 
+                    CheckPlayer(distancePlayer);
+                }
                 // check field of view 
                 break;
 
@@ -157,10 +177,9 @@ public class Zombie : MonoBehaviour
 
             case ZombieStates.RETURN:
                 
-                if (distancePlayer <= followDistance)
+                if (distancePlayer <= followDistance && playerAlive)
                 {
-                    previousPoint = Instantiate(pointPrefab, transform.position, Quaternion.identity);
-                    ChangeState(ZombieStates.MOVE);
+                    CheckPlayer(distancePlayer);
                     break;
                 }
 
@@ -181,10 +200,9 @@ public class Zombie : MonoBehaviour
 
             case ZombieStates.PATROL:
                 
-                if (distancePlayer <= followDistance)
+                if (distancePlayer <= followDistance && playerAlive)
                 {
-                    previousPoint = Instantiate(pointPrefab, transform.position, Quaternion.identity);
-                    ChangeState(ZombieStates.MOVE);
+                    CheckPlayer(distancePlayer);
                     break;
                 }
 
@@ -203,6 +221,32 @@ public class Zombie : MonoBehaviour
         }
     }
 
+    private void CheckPlayer(float distancePlayer)
+    {
+        Vector3 direction = player.transform.position - transform.position;
+        LayerMask layerMask = LayerMask.GetMask("Walls");
+        float angle = Mathf.Abs(Vector3.Angle(direction, -transform.up));
+        
+        if (angle <= spotAreaAngle || distancePlayer <= absoluteFollowDistance)
+        { 
+        
+            RaycastHit2D hit = Physics2D.Raycast(transform.position, direction, distancePlayer, layerMask);
+
+
+            if (hit.collider == null)
+            {
+                if (activeState != ZombieStates.RETURN)
+                {
+                    previousPoint = Instantiate(pointPrefab, transform.position, Quaternion.identity);
+                }
+                ChangeState(ZombieStates.MOVE);
+                
+            }
+        }
+
+
+    }
+
     public void DoDamageToPlayer()
     {
         player.DoDamage(damage);
@@ -218,6 +262,8 @@ public class Zombie : MonoBehaviour
                 // выключаем выполнение скрипта мувмента
                 movement.enabled = false;
                 movement.StopMovement();
+                transform.up = startGuardRotation;
+
 
                 break;
             case ZombieStates.MOVE:
@@ -256,6 +302,9 @@ public class Zombie : MonoBehaviour
 
                 movement.enabled = false;
                 movement.StopMovement();
+                
+                player.onDeath -= onPlayerDeath;
+                
                 anim.SetTrigger("Death");
                 if (finalBoss)
                 {
@@ -263,6 +312,7 @@ public class Zombie : MonoBehaviour
                 } 
                 Destroy(gameObject, corpsTime);
                 break;
+                
 
             default:
                 break;
@@ -279,12 +329,34 @@ public class Zombie : MonoBehaviour
     {
         Gizmos.color = Color.blue;
         Gizmos.DrawWireSphere(transform.position, followDistance);
+        Gizmos.DrawWireSphere(transform.position, absoluteFollowDistance);
+        Vector3 spotPlus = Vector3.Normalize(RotateVector(-transform.up, spotAreaAngle)) * followDistance;
+        Vector3 spotMinus = Vector3.Normalize(RotateVector(-transform.up, -spotAreaAngle)) * followDistance;
+        Gizmos.DrawLine(transform.position, transform.position + spotPlus);
+        Gizmos.DrawLine(transform.position, transform.position + spotMinus);
+        
+
+
 
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, attackDistance);
 
         Gizmos.color = Color.white;
         Gizmos.DrawWireSphere(transform.position, returnDeltaDistance + followDistance);
+    }
+
+    private Vector3 RotateVector(Vector3 vectorToRotate, float angleToRotateInDegrees)
+    {
+        float x = vectorToRotate.x;
+        float y = vectorToRotate.y;
+        float angleToRotateInRadian = angleToRotateInDegrees * Mathf.PI / 180f;
+        float xCos = x * Mathf.Cos(angleToRotateInRadian);
+        float xSin = x * Mathf.Sin(angleToRotateInRadian);
+        float yCos = y * Mathf.Cos(angleToRotateInRadian);
+        float ySin = y * Mathf.Sin(angleToRotateInRadian);
+
+        Vector3 newVector = new Vector3(xCos - ySin, xSin + yCos, 0);
+        return newVector;
     }
 
     void SetNextPoint()
@@ -339,6 +411,8 @@ public class Zombie : MonoBehaviour
     public void DoDamage(float damage)
     {
         health -= damage;
+        onHealthChanged();
+
         if (health <= 0 && alive)
         {
             ChangeState(ZombieStates.DEATH);
@@ -362,4 +436,12 @@ public class Zombie : MonoBehaviour
         }
     }
 
+    void onPlayerDeath()
+    {
+        if (activeState == ZombieStates.MOVE || activeState == ZombieStates.ATTACK)
+        {
+            playerAlive = false;
+            ChangeState(ZombieStates.RETURN);
+        }
+    }
 }
