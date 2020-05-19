@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Lean.Pool;
 
 public class MedKit : MonoBehaviour
 {
@@ -15,7 +16,7 @@ public class MedKit : MonoBehaviour
         if (player != null)
         {
             player.ChangeHP(heal);
-            Destroy(gameObject);
+            LeanPool.Despawn(gameObject);
         }
     }
 }

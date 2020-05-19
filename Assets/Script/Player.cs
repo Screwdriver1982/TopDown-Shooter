@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using Lean.Pool;
 
 
 public class Player : MonoBehaviour
@@ -13,8 +14,9 @@ public class Player : MonoBehaviour
     public Transform shootPosition;
     public float fireRate;
     public float maxHealth;
-    
     public float health;
+    public int ammo;
+    
     float nextFire;
     Animator anim;
     SceneLoader sceneLoaderVar;
@@ -39,9 +41,19 @@ public class Player : MonoBehaviour
     {
         if (Input.GetButton("Fire1") && nextFire<=0 && alive)
         {
-            Instantiate(bulletPrefab, shootPosition.position, transform.rotation);
-            nextFire = fireRate;
-            anim.SetTrigger("Shoot");
+            if (ammo > 0)
+            {
+                LeanPool.Spawn(bulletPrefab, shootPosition.position, transform.rotation);
+                nextFire = fireRate;
+                ammo -= 1;
+                anim.SetTrigger("Shoot");
+
+
+            }
+            else
+            {
+                MissFire();
+            }
         }
 
         if (nextFire > 0)
@@ -89,6 +101,15 @@ public class Player : MonoBehaviour
         onHealthChanged();
     }
 
+    void MissFire()
+    { 
+    
+    }
+
+    public void ChangeAmmo(int deltaAmmo)
+    {
+        ammo = Mathf.Max(0, ammo + deltaAmmo);
+    }
 }
 
 

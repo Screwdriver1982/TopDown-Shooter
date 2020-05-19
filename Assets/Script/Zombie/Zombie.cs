@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using UnityEditorInternal;
+using Pathfinding;
+using Random = UnityEngine.Random;
+using Lean.Pool;
 
 public class Zombie : MonoBehaviour
 {
@@ -20,6 +23,9 @@ public class Zombie : MonoBehaviour
     public float maxHealth;
     public float health;
     public bool finalBoss;
+    public float followSpeed;
+    public float patrolSpeed;
+    public float returnSpeed;
 
     [Header("Attack Config")]
     public float attackRate;
@@ -31,11 +37,15 @@ public class Zombie : MonoBehaviour
 
     public RescueZone[] rZone;
 
+    [Header("Drop config")]
+    public GameObject[] drop;
 
     Player player;
     bool playerAlive = true;
-    
-    ZombieMovement movement;
+
+    //ZombieMovement movement;
+    AIPath movement;
+    AIDestinationSetter target;
     Animator anim;
     Rigidbody2D rb;
     AliveOrDeath aliveVar;
@@ -76,7 +86,9 @@ public class Zombie : MonoBehaviour
         player = FindObjectOfType<Player>();
         player.onDeath += onPlayerDeath;
 
-        movement = GetComponent<ZombieMovement>();
+        //movement = GetComponent<ZombieMovement>();
+        movement = GetComponent<AIPath>();
+        target = GetComponent<AIDestinationSetter>();
         anim = GetComponentInChildren<Animator>();
         rb = GetComponent<Rigidbody2D>();
         
@@ -211,7 +223,8 @@ public class Zombie : MonoBehaviour
                 {
                 
                     SetNextPoint();
-                    movement.SetTarget(nextPoint);
+                    target.target = nextPoint.transform;
+                    //movement.SetTarget(nextPoint);
                     Rotate(nextPoint);
                 }
                 break;
@@ -261,7 +274,7 @@ public class Zombie : MonoBehaviour
                 
                 // выключаем выполнение скрипта мувмента
                 movement.enabled = false;
-                movement.StopMovement();
+                //movement.StopMovement();
                 transform.up = startGuardRotation;
 
 
@@ -269,21 +282,21 @@ public class Zombie : MonoBehaviour
             case ZombieStates.MOVE:
                 
                 movement.enabled = true;
-                movement.StartFollow();
-                movement.FollowSpeed();
+                target.target = player.transform;
+                movement.maxSpeed = followSpeed;
 
                 break;
             case ZombieStates.ATTACK:
                 
                 movement.enabled = false;
-                movement.StopMovement();
+                //movement.StopMovement();
 
                 break;
             case ZombieStates.RETURN:
                 
                 movement.enabled = true;
-                movement.SetTarget(previousPoint);
-                movement.RuturnSpeed();
+                target.target = previousPoint.transform;
+                movement.maxSpeed = returnSpeed;
                 Rotate(previousPoint);
 
 
@@ -293,15 +306,16 @@ public class Zombie : MonoBehaviour
                 
                 movement.enabled = true;
                 nextPoint = patrolPoints[currentPatrolPoint];
-                movement.SetTarget(nextPoint);
-                movement.PatrolSpeed();
+                target.target = nextPoint.transform;
+                movement.maxSpeed = patrolSpeed;
                 Rotate(nextPoint);
 
                 break;
             case ZombieStates.DEATH:
 
                 movement.enabled = false;
-                movement.StopMovement();
+                //movement.StopMovement();
+                //movement.StopMovement();
                 
                 player.onDeath -= onPlayerDeath;
                 
@@ -311,6 +325,7 @@ public class Zombie : MonoBehaviour
                     ActivateRescueZone(true);
                 } 
                 Destroy(gameObject, corpsTime);
+                DropItem();
                 break;
                 
 
@@ -444,4 +459,14 @@ public class Zombie : MonoBehaviour
             ChangeState(ZombieStates.RETURN);
         }
     }
+
+    void DropItem()
+    {
+        if (drop.Length != 0)
+        {
+            int dropNumber = Random.Range(0, drop.Length);
+            LeanPool.Spawn(drop[dropNumber], transform.position, transform.rotation);
+        }
+    }
+
 }

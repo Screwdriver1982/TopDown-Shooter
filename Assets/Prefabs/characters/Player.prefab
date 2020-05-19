@@ -55,6 +55,7 @@ MonoBehaviour:
   fireRate: 0.5
   maxHealth: 100
   health: 100
+  ammo: 100
 --- !u!114 &5979520839360181620
 MonoBehaviour:
   m_ObjectHideFlags: 0
